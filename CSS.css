@@ -96,7 +96,7 @@ article section { margin-top: 3em;}
 
 @media (min-width: 600px) 
 {  
-    nav { display: grid;  grid-template-columns: auto auto auto auto;}
+    nav { display: grid;  grid-template-columns: auto auto auto;}
     aside { position:absolute; padding-top:0.5em;}
     aside * { width:15vw; display:flex; justify-content: flex-end;}
     main {left:18vw; width:80vw; height:10vh; }

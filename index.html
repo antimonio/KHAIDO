@@ -29,7 +29,7 @@
         <main id="contenido">
             <article id="inicio" class="hidden">
                 <p> ¡Bienvenido a la web :DDD! </p>
-                <p> Ahora mismo te encuentras en el espacio de KHAIDO. Mi nombre es Antonio Alcaraz y en este lugar podrás encontrar el portfolio de la marca, incluyendo todo tipo de proyectos audiovisuales: cortos, videoclips, shorts, programación web, elementos de videojuegos y de audio...
+                <p> Ahora mismo te encuentras en el espacio KHAIDO. Mi nombre es Antonio Alcaraz este es mi portfolio personal, incluyendo todo tipo de proyectos audiovisuales: cortos, videoclips, shorts, programación web, elementos de videojuegos y de audio...
                 </p>
                 <p> Puedes acceder también a nuestras redes sociales mediante los botones inferiores o los enlaces indicados en algunas secciones.
                 <p> En <b> Youtube  </b> se publican principalmente los proyectos de vídeo más grandes y directamente relacionados con la marca. La cuenta de <b>  Instagram  </b> está más bien dedicada a pequeños shorts de vídeo. </p>
@@ -41,27 +41,32 @@
 
             <article id="video" class="hidden">
                 <a style="float:right; margin:0.3em;" href="https://www.instagram.com/khaido_ig/channel/"><img src="./images/igprofile.jpg" style="border-radius:50%; width:5em; height:5em;"/></a>
-                <h1> Sección de video </h1>
+                <h1> Audiovisuales </h1>
                 <p> Puedes acceder a los shorts e historias publicadas a través del enlace en la foto de la derecha, directo a la sección de IGTV de Instagram. </p>
                 <section id="videos"></section>
+
+                <br>
+                <a style="float:right; margin:0.3em;" href="https://www.instagram.com/khaido_ig/"><img src="./images/igprofile.jpg" style="border-radius:50%; width:5em; height:5em;"/></a>
+                <h2> Fotografía </h2>
+                <p> Es probable que la sección no esté visible debido a problemas con la API de Instagram. Puedes acceder a todas las fotos publicadas a través del icono de Instagram o de la foto de la derecha. </p>
             </article>
 
             <article id="gyp" class="hidden">
-                <h1> Sección de gráficos y programación </h1>
+                <h1> Desarrollo gráfico </h1>
                 <p> Parte del código fuente de estos proyectos se encuentra innacesible líbremente o no completamente documentado. En caso de interés contacten a través de la dirección de correo: <a href="mailto:info@khaido.website">info@khaido.website</a> </p>
                 <p> <b> ATENCION: </b> gran parte del material proviene de prácticas en torno a la construcción de servicios en la web no específicos para dispositivos móviles (hacen uso del teclado o de un monitor de gran tamaño) por lo que estos <b> no se recomienda visualizarlos en móviles.</b> </p>
-                <section id="gyp"></section>
+                <section id="gyps"></section>
             </article>
 
             <article id="audio" class="hidden">
-                <h1> Sección de audio </h1>
+                <h1> Solo audio </h1>
                 <section id="audios"></section>
             </article>
 
             <article id="colabo" class="hidden">
-                <h1> Sección de colaboraciones con otras marcas </h1>
-                <p> Durante el desarrollo de la actividad de esta marca se han realizado colaboraciones con diversas personas y marcas. Esta sección pretende dar visibilidad a las mismas. </p>
-                <p> Se pretende que para ello dichas personas preparen un banner personalizado a su gusto para que la publicación sea de su agrado, de forma que la sección permanecerá en construcción hasta que al menos 3 de las colaboraciones que hemos tenido nos envíen dicho material. </p>
+                <h1> Colaboraciones </h1>
+                <p> Colaboraciones y contratos públicos realizados hasta el momento. </p>
+                <section id="colabos"></section>
             </article>
         </main>
 
@@ -85,23 +90,17 @@
         </section>
 
         <footer>
-            <p id="left"> Khaido Productions TM </p>
+            <p id="left"> Khaido Productions </p>
             <div id="socialnets">
                 <a style="text-decoration:none;" href="https://www.youtube.com/channel/UCT9oXTKofTXK8eBNU8Z2Uog"> <button class="fa fa-youtube">  </button>  </a>
                 <a style="text-decoration:none;" href="https://www.instagram.com/khaido_ig/?hl=es"> <button class="fa fa-instagram">   </button> </a>
                 <a style="text-decoration:none;" href="https://www.uoc.edu/portal/es/news/actualitat/2020/165-twitter-red-odio.html"> <button class="fa fa-twitter"></button>  </a>
             </div>
-            <p id="right"> 2021 </p>
+            <p id="right"> 2026 </p>
         </footer>
 
         <script>
 			Cargar('inicio');
-
-			window.addEventListener('load', function ()
-			{
-				var a = document.getElementsByTagName("img");
-				for (i of a) if(i.src=="https://cdn.000webhost.com/000webhost/logo/footer-powered-by-000webhost-white2.png")i.parentElement.parentElement.remove();
-			});
 		</script>
 
     </body>

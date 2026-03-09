@@ -8,9 +8,9 @@ function menu(classd,onclick,id,text){return {class:classd,buttons:onclick.map((
 var buttons =
 {
     NAV:menu("kbutton knavbutton",
-            [l('video'),l('gyp'),l('audio')],
+            [l('video'),l('audio'), l('gyp')],
             ['','',''],
-            ['Vídeo','Graphics&Prog','Audio']),
+            ['Audiovisual','Audio', 'Dev']),
     ASIDE:menu("kbutton k2button",
                [l('colabo')],
                ['b_colabo'],
@@ -47,10 +47,11 @@ fetch("media/media.csv")
         renderizarSeccion('video', null);
         renderizarSeccion('gyp', null);
         renderizarSeccion('audio', null);
+        renderizarSeccion('colabo', null);
     });
 
 function renderizarSeccion(seccion, tag){
-    let section = document.getElementById(seccion) || document.getElementById(seccion + "s");
+    let section = document.getElementById(seccion + "s") || document.getElementById(seccion);
     if(!section) return;
 
     section.innerHTML = '';
