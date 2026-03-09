@@ -1,12 +1,4 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/***************************Data***************************/
-
-var styles = ["./CSS.css", 
+var styles = ["./CSS.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"];
 
 
@@ -16,96 +8,115 @@ function menu(classd,onclick,id,text){return {class:classd,buttons:onclick.map((
 var buttons =
 {
     NAV:menu("kbutton knavbutton",
-            [l('video'),l('foto'),l('gyp'),l('audio')],
-            ['','','',''],
-            ['Vídeo','Fotografía','Graphics&Prog','Audio']),
-    ASIDE:menu("kbutton k2button", 
-               [l('contacto'),l('colabo')],
-               ['b_contacto','b_colabo'],
-               ['Contacto','Colaboraciones'])
+            [l('video'),l('gyp'),l('audio')],
+            ['','',''],
+            ['Vídeo','Graphics&Prog','Audio']),
+    ASIDE:menu("kbutton k2button",
+               [l('colabo')],
+               ['b_colabo'],
+               ['Colaboraciones'])
 };
 
 
-/***************************Functions***************************/
+let mediaData = [];
 
+fetch("media/media.csv")
+    .then(response => response.text())
+    .then(csv => {
+        let lines = csv.trim().split('\n');
+        let headers = lines[0].split(';');
+        for(let i = 1; i < lines.length; i++){
+            let row = [], col = '', inQuotes = false;
+            for(let j = 0; j < lines[i].length; j++){
+                let ch = lines[i][j];
+                if(ch === '"') inQuotes = !inQuotes;
+                else if(ch === ';' && !inQuotes){
+                    row.push(col.replace(/"/g, ''));
+                    col = '';
+                } else col += ch;
+            }
+            row.push(col.replace(/"/g, ''));
 
-//AJAX
-
-function objAjax()
-{
-    var xmlhttp=false;
-    try { xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");} 
-    catch(e) 
-    {
-        try { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");}
-        catch(E) { xmlhttp = false;}
-    } 
-    if(!xmlhttp && typeof XMLHttpRequest!='undefined') xmlhttp = new XMLHttpRequest();
-    return xmlhttp;
-}
-
-function obtener(pagina, javascript = false)
-{
-    var ajax = objAjax();
-    ajax.open("GET","main.php?pagina="+pagina,true);
-    ajax.onreadystatechange=function()
-    {
-        if(ajax.readyState==4  && ajax.status==200)
-        {
-            let article = document.createElement("article");
-            article.id = pagina; document.getElementById("contenido").append(article);
-            article.className = "hidden";
-            setTimeout(() => { article.className = "visible";}, 100);
-            article.innerHTML=ajax.responseText;
-            
-            if(javascript)
-                for(child of article.getElementsByTagName("section")[0].children)
-                    if(child.tagName.toLowerCase() == 'script') eval(child.innerHTML);
-            
+            let item = {};
+            headers.forEach((header, idx) => {
+                item[header] = row[idx] || '';
+            });
+            mediaData.push(item);
         }
-    };
-    ajax.setRequestHeader("Content-Type","aaplication/x-www-form-urlencoded");
-    ajax.send();
-}
 
-//Elements & visibility
+        renderizarSeccion('video', null);
+        renderizarSeccion('gyp', null);
+        renderizarSeccion('audio', null);
+    });
+
+function renderizarSeccion(seccion, tag){
+    let section = document.getElementById(seccion) || document.getElementById(seccion + "s");
+    if(!section) return;
+
+    section.innerHTML = '';
+
+    let filtrados = mediaData.filter(item => item.TIPO === seccion);
+
+    if(tag){
+        section.innerHTML = '<br><h3>' + tag + '</h3>';
+        filtrados = filtrados.filter(item => {
+            let tags = item.TAGS.split(',').map(t => t.trim());
+            return tags.includes(tag);
+        });
+    }
+
+    filtrados.forEach(item => {
+        let card = document.createElement('div');
+        card.className = 'mediacard';
+
+        let portada = document.createElement('div');
+        portada.className = 'portada';
+        portada.style.background = "url('media/previews/" + item.MEDIA + ".webp') center/cover no-repeat";
+        portada.onclick = function(){ cargarmultimedia(item.LINK + item.PARAMETERS); };
+
+        let titulo = document.createElement('h2');
+        titulo.className = 'titulo';
+        titulo.textContent = item.TITULO;
+
+        let desc = document.createElement('p');
+        desc.className = 'descripcion';
+        desc.innerHTML = item.DESCRIPCION;
+
+        card.appendChild(portada);
+        card.appendChild(titulo);
+        card.appendChild(desc);
+
+        let tags = item.TAGS.split(',').map(t => t.trim()).filter(t => t);
+        tags.forEach(t => {
+            let link = document.createElement('a');
+            link.href = '#';
+            link.textContent = '#' + t;
+            link.onclick = function(e){
+                e.preventDefault();
+                swapContent(seccion, t);
+                return false;
+            };
+            card.appendChild(link);
+        });
+
+        section.appendChild(card);
+    });
+}
 
 function Cargar(seccion_id)
 {
-
     try {document.getElementsByClassName('visible')[0].className = 'hidden';}catch(error){};
-    
+
     var abrir = document.getElementById(seccion_id);
-    if(abrir === null) obtener(seccion_id, seccion_id == "foto");
-    else if (abrir.querySelector("#title_tagged")) 
-    {
-        abrir.remove();
-        obtener(seccion_id);
-    }
-    else abrir.className = 'visible';
+    if(abrir !== null) abrir.className = 'visible';
 }
 
 function swapContent(seccion_id, tag)
 {
-    var ajax = objAjax();
-    ajax.open("GET","main.php?pagina="+seccion_id+"&tag="+tag,true);
-    ajax.onreadystatechange=function()
-    {
-        if(ajax.readyState==4  && ajax.status==200)
-        {
-            document.getElementById("contenido").removeChild(document.getElementById(seccion_id));
-            let article = document.createElement("article");
-            article.id = seccion_id; 
-            document.getElementById("contenido").append(article);
-            article.innerHTML=ajax.responseText;
-            article.className = 'visible';
-
-        }
-    };
-    ajax.setRequestHeader("Content-Type","aaplication/x-www-form-urlencoded");
-    ajax.send();
+    var element = document.getElementById(seccion_id);
+    if(element) element.className = 'visible';
+    renderizarSeccion(seccion_id, tag);
 }
-
 
 function cargarmultimedia(enlace)
 {
@@ -116,37 +127,19 @@ function cargarmultimedia(enlace)
     document.body.style.overflow = "hidden";
 }
 
-function cargarFotos(data)
-{
-    var carousel = document.getElementById("carousel");
-    var counter = 0;
-    for(url of data.urls)
-    {
-        ++counter;
-        let li = document.createElement("li"), img = document.createElement("img");
-        img.id = "photo" + counter;
-        img.addEventListener('click', function(){ cargarfoto(img.id); });
-        img.src = url;
-        img.alt = "Cargando fotografía...";
-        img.loading = "lazy";
-        li.appendChild(img);
-        carousel.appendChild(li);
-    }
-}
-
 function cargarfoto(id)
 {
     document.getElementById('photoviewer').style.display="block";
     document.getElementById("photo_container").src = document.getElementById(id).src;
-    var num = parseInt(id.replace("photo","")), nextnum = num+1, prevnum = num-1; 
+    var num = parseInt(id.replace("photo","")), nextnum = num+1, prevnum = num-1;
 
-    if(prevnum > 0) 
+    if(prevnum > 0)
     {
         let prev = document.getElementById("prev_image");
         prev.setAttribute("onclick","cargarfoto(\"photo"+prevnum+"\")");
         prev.style.display = "block";
     }
-    else document.getElementById("prev_image").style.display = "none"; 
+    else document.getElementById("prev_image").style.display = "none";
 
     if(document.getElementById("photo"+nextnum))
     {
@@ -156,3 +149,4 @@ function cargarfoto(id)
     }
     else document.getElementById("next_image").style.display = "none";
 }
+
