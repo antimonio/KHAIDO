@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>PONG</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css.css">     
+        <script src="js.js"></script>     
+    </head>
+    
+    <body style="background:#F2C50A; position:fixed; top:50%; transform:translate(0,-50%); margin:0px;" >
+        
+            <header><img src="banner.png"></header>
+            
+            <main style="display:flex; justify-content:center;">
+                
+                <aside class="havebackimage" style="background-image: url(lefthd.png);"></aside>
+                
+                <form id="pong" onsubmit="startgame(this);return false;" style="background:black; padding:0.5em;">
+
+                    <fieldset id="names" class="fieldpair" style="margin-bottom:-1px;">
+                        <input id="player1" title="Jugador 1" name="Jugador 1" placeholder="Jugador 1" maxlength="10" />
+                        <input id="player2" title="Jugador 2" name="Jugador 2" placeholder="Jugador 2" maxlength="10" />
+                    </fieldset>
+
+                    <canvas id="canvas" class="havebackimage"
+                            style="border:solid white 1px; vertical-align:bottom; border-radius: 0.5em; 
+                                    background-image: url(pongback.jpg);">
+                    </canvas> 
+
+                    <fieldset id="gameoptions" class="fieldpair" style="margin-top:-1px;">
+                        <input id="racket_size" title="Tamaño de la pala: porcentaje sobre la altura del canvas" 
+                               placeholder="Tamaño de la pala" pattern='[0-9]{2}' value="" maxlength="2" />
+                        <input id="game_speed" title="Velocidad de la bola: te recomendamos en torno a 10" 
+                               placeholder="Velocidad de la bola" pattern='[0-9]{1,2}' value="" maxlength="2" />
+                    </fieldset>    
+                    
+                    <input type="submit" id="starter" value=""
+                           style="width:1.5em; margin-top:0.5em; background:url('play.png') center/contain no-repeat; border:none;"/>
+
+                </form>                
+                
+                <aside class="havebackimage" style="background-image: url(righthd.png);"></aside>
+                
+            </main>
+
+            <footer> <p> Made by <b> Khaido © </b> <br> <br> Las teclas para jugar son: (jugador de la derecha) w,s (y jugador de la izquierda) flechas arriba y abajo </p>  </footer>
+        
+        <script>
+            /**
+             * Se introducen los listeners para redimensionar los elementos y pulsar las teclas,
+             * se inician las variables del juego
+             */
+            var isgameinit = false;                         //Estado de iniciado del juego
+            var canvas = document.getElementById("canvas"); //Canvas del juego
+            var ctx = canvas.getContext("2d");              //Contexto 2D del canvas del juego
+            var intervalID;                                 //Identificador de intervalos
+            var player1, player2, ball, game, defaults;
+            //Variables para características, configuracion y elementos a dibujar en el juego
+            
+            //OJO: para ahorrar dibujado, la red y la barra superior se introducen como background
+            
+            window.addEventListener('resize', function() {adaptView();} , false);
+            document.addEventListener('keydown', function (e) {on_player_move(e);},false);
+            document.addEventListener('keyup', function (e) {off_player_move(e);},false);
+            adaptView();
+        </script>         
+        
+    </body>
+</html>

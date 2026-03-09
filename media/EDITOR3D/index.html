@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Editor X3DOM</title>
+		<link rel="stylesheet" 
+		href="./x3dom/x3dom.css">
+		<script src="./x3dom/x3dom.js">
+		</script>
+		
+		<style>
+			input[type=number] {width:3em;}
+			
+			#editor { display: grid; grid-template-areas: "screen insertar" "screen editar"; }
+			label { display: grid; grid-template-columns: 1fr auto auto auto; margin:0.5em;}
+
+			#screen { grid-area: screen; }
+			#insertar { grid-area: insertar; }
+			#editar { grid-area: editar; }
+			
+			* {font-family: "Roboto"; font-weight: 400; color:#474747; }
+			body {background-color:#f2f2f2;}
+			legend {border:solid black 1px; border-radius:1em; padding:0.5em;}
+			h1 {text-align: center; font-size: 400%; font-weight:200;}
+			x3d {background-color:white;}
+			
+		</style>
+		
+		
+	</head>
+	<body>
+		<h1>Editor X3DOM</h1>
+		<p id="exem2" style="position:fixed;top:1em;right:0px;"></p>
+		<div id=editor>
+			<x3d id="screen" style="border:1px solid black; width:75vw; height:500px;">
+			
+				<!-- Escena X3DOM -->
+				<scene id="screencontent">	
+				
+					<!-- Punto de vista inicial -->				
+					<Viewpoint position="-6.38072 3.98781 -6.58664" orientation="0.10374 0.97538 0.19460 3.90288" 
+					zNear="0.00389" zFar="38.90359" centerOfRotation="0.00000 0.00000 0.00000" fieldOfView="0.78540" description="defaultX3DViewpointNode"></Viewpoint>
+					
+					<!-- Plano XZ cuadriculado -->
+					<transform rotation="1 0 0 -1.57079632679">
+						<Shape isPickable="false">
+							<Appearance>
+								<Material diffuseColor='0.0 0.0 0.0' specularColor='0.0 0.0 0.0' emissiveColor='0.2 0.2 0.2'></Material>                    
+							</Appearance>
+							<Plane id="gridPlane" solid="false" size='20 20' primType='LINES' subdivision='20 20'>
+							</Plane>
+						</Shape>
+						<Shape isPickable="false">
+							<Appearance>
+								<Material></Material>                    
+							</Appearance>
+							<IndexedLineSet coordIndex="0 1 2 3 0 -1">
+								<Coordinate id="gridBordersCoordNode" point="-10.0 -10.0 0.0, -10.0 10.0 0.0 ,  10.0 10.0 0.0, 10.0 -10.0 0.0"/>
+								<Color color="0.4 0.4 0.4, 0.4 0.4 0.4, 0.4 0.4 0.4, 0.4 0.4 0.4"/>
+							</IndexedLineSet>
+						</Shape>
+					</transform>	
+
+					<!-- Ejes XYZ -->					
+					<group>
+						<Shape isPickable="false" DEF="AXIS_LINE_X">
+							<IndexedLineSet index="0 1 -1">
+								<Coordinate point="0 0 0.001, 15 0 0.001" color="1 0 0, 1 0 0"></Coordinate>
+							</IndexedLineSet>
+
+							<Appearance DEF='Red'>
+								<Material diffuseColor="0 0 0" emissiveColor='1 0 0'></Material>
+								<LineProperties linewidthScaleFactor="2.0"></LineProperties>
+							</Appearance>
+						</Shape>                           
+						<Shape isPickable="false" DEF="AXIS_LINE_Y">
+							<IndexedLineSet index="0 1 -1">
+								<Coordinate point="0 0 0.001, 0 15 0.001" color="0 1 0, 0 1 0"></Coordinate>
+							</IndexedLineSet>
+
+							<Appearance DEF='Green'>
+								<Material diffuseColor="0 0 0" emissiveColor='0 1 0'></Material>
+								<LineProperties linewidthScaleFactor="2.0"></LineProperties>
+							</Appearance>
+						</Shape>
+						<Shape isPickable="false" DEF="AXIS_LINE_Z">
+							<IndexedLineSet index="0 1 -1" >
+								<Coordinate point="0 0 0.001, 0 0 15" color="0 0 1, 0 0 1"></Coordinate>
+							</IndexedLineSet>
+
+							<Appearance DEF='Blue'>
+								<Material diffuseColor="0 0 0" emissiveColor='0 0 1'></Material>
+								<LineProperties linewidthScaleFactor="2.0"></LineProperties>
+							</Appearance>
+						</Shape>
+					</group>	
+
+					<!-- Figura de ejemplo 1, cono azul en el aire-->						
+					<transform translation="1 2 -3">
+						<transform scale="1 1 1">
+							<shape id="boxample" onclick="selection_process(event)">
+								<appearance>								
+									<material diffusecolor="0 0 1" specularcolor="0 0 0.5" ambientintensity="0.2" emissivecolor="0,0,0" shininess="0.2">
+									</material>
+								</appearance>
+								<cone/>
+							</shape>					
+						</transform>
+					</transform>
+					
+					<!-- Figura de ejemplo 2, cubo rojo en el suelo-->							
+					<transform translation="-1 0.5 2">
+						<transform scale="0.5 0.5 0.5">
+							<shape id="boxample2" onclick="selection_process(event)">	
+								<appearance>
+									<material diffusecolor="1 0 0" specularcolor="0 0 0.5" ambientintensity="0.2" emissivecolor="0,0,0" shininess="0.2">
+									</material>
+								</appearance>
+								<box/>	
+							</shape>
+						</transform>
+					</transform>					
+					
+				</scene>
+			</x3d>
+			
+			<!-- El submit activa el evento de crear una figura -->	
+			<form action="#" id="myform" onsubmit="return create(event.target)" > 
+			
+				<!-- Sección de insertar figuras: realtimeEdit permite cambiar el tiempo real la "malla creadora" -->		
+				<fieldset id="insertar" oninput="realtimeEdit(event.target,creator);"><legend>Insertar</legend>
+				
+					<!-- Cada campo editable sigue la estructura label > input -->	
+					<label> Figura
+						<select id="figuras" name="tagName" oninput="mostrarCampos(this.value,this.parentElement.parentElement.children)">
+								<option value="Box"> Cubo </option> <option value="Sphere"> Esfera </option>
+								<option value="Cylinder"> Cilindro </option> <option value="Torus"> Toro </option>
+								<option value="Cone"> Cono </option>
+						</select>		
+					</label>
+					
+					<label> Color <input type="color" id="color" name="color" value="#222222"/> </label>
+					<label> Posicion
+						<input type="number" name="translation" placeholder="x" title="x" value="0"> 
+						<input type="number" name="translation" placeholder="y" title="y" value="0"> 
+						<input type="number" name="translation" placeholder="z" title="z" value="0"> 
+					</label>			
+					
+					<label class="Box"> Lado <input type="number" name="size" min="0" step="any" value="1"> </label>
+					<label class="Sphere Cylinder"> Radio <input type="number" name="radius" min="0" step="any" value="1"> </label>
+					<label class="Cone"> Radio <input type="number" name="bottomradius" min="0" step="any" value="1"> </label>
+					<label class="Cone Cylinder"> Altura <input type="number" name="height" min="0" step="any" value="1"> </label>
+					<label class="Torus"> Radio interno <input type="number" name="innerRadius" min="0" step="any" value="1"> </label>
+					<label class="Torus"> Radio externo <input type="number" name="outerRadius" min="0" step="any" value="1"> </label>
+					
+					<input type="submit" value="Crear"/>		
+					
+				</fieldset>
+
+				<!-- Sección de editar figuras: realtimeEdit permite cambiar el tiempo real la figura seleccionada y la "malla de seleccion" que son selected y selector)-->					
+				<fieldset id="editar" style="visibility:hidden" oninput="realtimeEdit(event.target,selected);realtimeEdit(event.target,selector);"><legend>Editar</legend>		
+					<label> Color <input type="color" id="color" name="color"/> </label>
+					<label> Posicion
+						<input type="number" name="translation" placeholder="x" title="x" step="any"> 
+						<input type="number" name="translation" placeholder="y" title="y" step="any"> 
+						<input type="number" name="translation" placeholder="z" title="z" step="any"> 
+					</label>			
+					
+					<label> Escalado
+						<input type="number" name="scale" placeholder="x" title="x" step="any"> 
+						<input type="number" name="scale" placeholder="y" title="y" step="any"> 
+						<input type="number" name="scale" placeholder="z" title="z" step="any"> 
+					</label>		
+				</fieldset>	
+				
+			</form>
+		</div>
+		
+		<script>
+			var selected = "", selector = ""; //Guardan el elemento seleccionado y el elemento de la malla selectora respectivamente cuando existen
+			var editar = document.getElementById("editar"); //Fieldset de campos de edición
+			var figureCounter = 0;	//Un pequeño contador para introducir una id diferente cada vez que se crea una figura
+			
+			//Se le introduce un objecto shape y devuelve su material
+			function getMaterial(object) { return (object.getElementsByTagName("appearance")[0].getElementsByTagName("material")[0]);}
+
+	
+			function to_x3_rgb(hex) //Convierte #FFFFF a 1 1 1	
+			{ return (parseInt(hex[1]+hex[2],16)/255 + " " + parseInt(hex[3]+hex[4],16)/255 + " " + parseInt(hex[5]+hex[6],16)/255)}
+			
+			function to_input_rgb(x3) //Convierte 1 1 1 a #FFFFF 
+			{ 
+				var rgb = [(x3.r*255).toString(16),(x3.g*255).toString(16),(x3.b*255).toString(16)];
+				for(let i = 0; i < rgb.length; i++)
+				{
+					if(rgb[i].length < 2) rgb[i] = "0" + rgb[i];
+				}
+				return ("#" + rgb[0] + rgb[1] +rgb[2]);
+			}
+			
+			function selection_process(event) //Lo que ocurre al pulsar una figura (shape)
+			{
+				//Crear elemento textura del grid
+				var selector_grid = document.createElement("texture");
+				selector_grid.setAttribute("url","grid.png");
+				
+				var select, translation;	//Elemento shape seleccionado y su nodo padre final de traslacion
+	
+				//Si ya existia la malla porque estaba seleccionado otro shape, se elimina
+				if(select = document.getElementById("select"))
+				{
+					translation = select.parentElement.parentElement;
+					translation.parentElement.removeChild(translation);
+				}
+				
+				//Se crea el nuevo elemento malla. Se copia el shape y las traslaciones
+				translation = event.target.parentElement.parentElement.cloneNode(true);
+				select = translation.firstElementChild.firstElementChild;
+				select.id = "select";
+				select.setAttribute("onclick","deselection_process(event)");
+				
+				//Se cambia del elemento malla creado la textura por la del grid
+				var material = getMaterial(select);
+				material.parentElement.appendChild(selector_grid);
+				material.parentElement.removeChild(material);
+
+				//Se introduce en la escena la malla de seleccion
+				document.getElementById("screencontent").appendChild(translation);
+
+				//Se muestra el fieldset editar actualizado y se introducen selector y selected en sus variables
+				mostrar(event.target);
+				selected = event.target;
+				selector = select;
+			}
+			
+			//Cuando se pulsa sobre una malla de seleccion, se ha decidido que sea como deseleccionar el elemento
+			function deselection_process(event)	
+			{	//Se elimina todo, incluido transformaciones padres y se elimina el valor de selected y selector
+				var remove = event.target.parentElement.parentElement;
+				remove.parentElement.removeChild(remove);
+				
+				editar.style.visibility="hidden"; //Tambien se oculta el panel de editar
+				selected = null;
+				selector = null;
+			}
+		
+			//Para mostrar y actualizar el panel de edicion
+			function mostrar(objeto)
+			{
+				editar.style.visibility="inherit";
+				
+				var translation = objeto.parentElement.parentElement.getFieldValue("translation");
+				var scale = objeto.parentElement.getFieldValue("scale");
+				
+				editar.children[1].children[0].value = to_input_rgb(getMaterial(objeto).getFieldValue("diffuseColor"));
+				editar.children[2].children[0].value = translation.x;
+				editar.children[2].children[1].value = translation.y;		
+				editar.children[2].children[2].value = translation.z;	
+				editar.children[3].children[0].value = scale.x;
+				editar.children[3].children[1].value = scale.y;		
+				editar.children[3].children[2].value = scale.z;						
+			}
+
+			//En el panel de insertar, para mostrar solo los campos pertenecientes al tipo de figura seleccionada
+			function mostrarCampos(clase, listaElementos)
+			{
+				for(let el of listaElementos)
+				{
+					if (el.className == "" || el.className.includes(clase)) //Cada label cuenta con una clase para clasificar por figura
+						el.style.display = "grid";
+					else el.style.display = "none";
+				}
+			}
+		
+			//Crear una figura obteniendo el valor de los campos del fieldset insertar
+			function create(myform)
+			{
+				var 
+					figure, figureColor, 
+					
+					appearance = document.createElement('Appearance'),
+					
+					position = document.createElement('Transform'), 
+					scale = document.createElement('Transform'),
+					shape = document.createElement('shape'), material = document.createElement('Material')
+					
+					campos = myform.firstElementChild.children;
+				
+				for (let i = 0; i < campos.length; i++)
+				{
+					var campo = campos[i];
+
+					if(campo.tagName == "LABEL")
+					{
+						let valor0 = campo.children[0].value;
+						let atributo = campo.children[0].name;
+
+						switch(atributo)	//Se aprovecha el uso de los atributos name y class en la estructura del formulario
+						{					//Class indica en el label si es un parametro de la figura que queremos
+											//Name indica el atributo el cual cambiaria ese input
+							case "tagName":
+								figure = document.createElement(valor0);
+								break;
+							case "size":	//Es un caso especial del box
+								figure.setAttribute(atributo, valor0+","+valor0+","+valor0);
+								break;
+							case "color":
+								material.setAttribute('diffuseColor', to_x3_rgb(valor0));	
+								break;
+							case "translation":
+								position.setAttribute("translation", valor0 + " " + campo.children[1].value + " " + campo.children[2].value);
+								break;
+							default:
+								if(campo.className.toUpperCase().includes(figure.tagName))
+									figure.setAttribute(atributo, valor0);
+								break;
+						}
+					}
+				}
+				scale.setAttribute('scale',"1 1 1");
+				shape.setAttribute("onclick","selection_process(event)");
+				shape.id = "figure" + figureCounter;
+				figureCounter++;
+				shape.appendChild(figure);
+				shape.appendChild(appearance);
+				appearance.appendChild(material);
+				scale.appendChild(shape);
+				position.appendChild(scale);
+				document.getElementById("screencontent").appendChild(position);
+
+				return false;
+			}
+			
+			//Permite ver en tiempo real los cambios de las figuras, la malla de inserción y la de selección
+			function realtimeEdit(atributo,object)
+			{	//De ahi que usemos un parametro generico. Aquí aunamos todos los posibles parametros editables en un switch
+				var trans, vector;
+				var figure = 	
+				(object.getElementsByTagName("BOX")[0] ||	//Obtenemos la figura que es por adelantado
+				object.getElementsByTagName("SPHERE")[0] ||
+				object.getElementsByTagName("CONE")[0] ||
+				object.getElementsByTagName("CYLINDER")[0] ||
+				object.getElementsByTagName("TORUS")[0]);
+
+				switch(atributo.name)
+				{
+					case "tagName":	//En este caso debemos eliminar el elemento box, cone... De antes, crear el nuevo e 
+									//introducirle los parametros que haya en ese momento en el panel de insercion
+						let new_figure = document.createElement(atributo.value);
+						let attributes = document.getElementsByClassName(atributo.value);
+						object.removeChild(figure);
+						for (let i = 0; i < attributes.length; i++)
+						{
+							let at = attributes[i].firstElementChild;
+							if(at.name != "size") new_figure.setAttribute(at.name, at.value);
+							else new_figure.setAttribute(at.name, at.value + " " + at.value + " " + at.value);
+						}
+						object.appendChild(new_figure);
+						break;
+					case "size":
+						figure.setAttribute(atributo.name, atributo.value+","+atributo.value+","+atributo.value);
+						break;
+					case "color":
+						let material = getMaterial(object);
+						if (material) material.setAttribute('diffuseColor', to_x3_rgb(atributo.value));	
+						break;
+					case "translation":
+						trans = object.parentElement.parentElement;
+						vector = atributo.parentElement.children;
+						trans.setAttribute(atributo.name, vector[0].value + " " + vector[1].value + " " + vector[2].value);
+						break;
+					case "scale":
+						trans = object.parentElement;
+						vector = atributo.parentElement.children;
+						trans.setAttribute(atributo.name, vector[0].value + " " + vector[1].value + " " + vector[2].value);
+						break;							
+					default:	//El resto de posibles parametros solo se afectarian en la malla creadora y serian del box,cilynder... Específicos
+						if(atributo.parentElement.className.toUpperCase().includes(figure.tagName))
+							figure.setAttribute(atributo.name, atributo.value);
+						break;				
+				}				
+			}
+
+			mostrarCampos('Box',document.getElementById('insertar').children); 	//Mostrar desde el principio los parametros adecuado
+			
+			//Crear la malla de insercion/creacion
+			create(document.getElementById("myform"));
+			var creator = document.getElementById("figure0");
+			
+			var creator_grid = document.createElement("texture"); //Con su respectiva textura grid
+			creator_grid.setAttribute("url","grid2.png");
+			creator.setAttribute("onclick","");	//Se debera de eliminar el evento de click que introduce create
+			var creator_material = getMaterial(creator); 
+			creator_material.parentElement.appendChild(creator_grid);		//Se introduce la textura de malla
+			creator_material.parentElement.removeChild(creator_material);	//Se elimina el material de color difuso
+			
+			
+			
+		</script>	
+	</body>
+</html>

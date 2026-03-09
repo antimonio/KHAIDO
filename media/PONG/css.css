@@ -1,0 +1,53 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 24-mar-2021, 9:53:21
+    Author     : user
+*/
+
+body * { font-family: roboto; font-size:inherit; text-align: center;}
+
+
+img {width:100%; height:100%}
+
+fieldset { padding: 0px; border: none; }
+
+form#pong input { outline: none;}
+
+.havebackimage
+{
+    background-repeat:no-repeat;
+    background-size:100% 100%; 
+    min-width: 8em;
+}
+
+.fieldpair {display: grid; grid-template-columns: auto auto; margin:0px; background:inherit;}
+.fieldpair input 
+{
+    background-color:transparent;
+    color:white; 
+    font-family:"Lucida Console", "Courier New", monospace;
+    font-weight:900;
+    font-smooth: never;
+    border:solid transparent 1px;
+    border-radius:0px;
+    padding:1em;
+    -webkit-font-smoothing : none;
+    transition: border 0.5s;
+    animation: intermitente 2s;
+}
+
+@keyframes intermitente 
+{
+    0% {border:solid transparent 1px;}
+    50% {border:solid white 1px;}
+    100% {border:solid transparent 1px;}
+}
+
+.fieldpair input:hover
+{
+    border:solid white 1px;
+}

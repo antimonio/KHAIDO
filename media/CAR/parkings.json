@@ -1,0 +1,46 @@
+
+{
+  "summary": {
+    "items": 5,
+    "items_per_page": 100000,
+    "pages": 1,
+    "current_page": 1
+  },
+  "resources": [
+    {
+      "plazaslib": "42",
+      "modified": "2021-04-20T06:09:31.53Z",
+      "plazastot": "270",
+      "nombre": "PARKING AVENIDA DEL OESTE",
+      "uri": "http://apigobiernoabiertortod.valencia.es/rest/datasets/estado_parkings/75.json"
+    },
+    {
+      "plazaslib": "192",
+      "modified": "2021-04-20T06:08:04.96Z",
+      "plazastot": "348",
+      "nombre": "PLAÇA DE LA REINA",
+      "uri": "http://apigobiernoabiertortod.valencia.es/rest/datasets/estado_parkings/5.json"
+    },
+    {
+      "plazaslib": "4",
+      "modified": "2021-04-20T06:08:04.62Z",
+      "plazastot": "176",
+      "nombre": "TRES CRUCES",
+      "uri": "http://apigobiernoabiertortod.valencia.es/rest/datasets/estado_parkings/1.json"
+    },
+    {
+      "plazaslib": "36",
+      "modified": "2021-04-20T06:08:04.125Z",
+      "plazastot": "192",
+      "nombre": "REGNE",
+      "uri": "http://apigobiernoabiertortod.valencia.es/rest/datasets/estado_parkings/8.json"
+    },
+    {
+      "plazaslib": "259",
+      "modified": "2021-04-20T01:17:37.272Z",
+      "plazastot": "431",
+      "nombre": "Centre Històric-Mercat Central",
+      "uri": "http://apigobiernoabiertortod.valencia.es/rest/datasets/estado_parkings/120.json"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title> Tu edad en el sistema solar </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <style>
+            #container {
+            height: 400px;
+            width: 400px;
+            position: relative;
+            }
+            #map {
+              left: 0;
+              top: 0;
+            }
+            .text {
+              position: absolute;
+              color: white;
+              font-size: 12px;
+            }
+            
+        </style>
+        
+        <script>
+            
+            const planetData = new Map([
+                ["Mercurio", [.23,.68,.24]],
+                ["Venus", [.32,.58,.61]],
+                ["Tierra", [.41,.48,1]],
+                ["Marte", [.49,.42,1.88]],
+                ["Jupiter", [.56,.28,11.86]],
+                ["Saturno", [.68,.18,29.47]],   
+                ["Urano", [.77,.11,84.07]],           
+                ["Neptuno", [.84,.07,164.88]],           
+                ["Pluton", [.91,.04,248]]
+              ]);
+            
+            
+            function alertPosition(image, event)
+            {
+                alert("x: " + parseFloat(event.offsetX/image.width).toFixed(2) + "  and y: " + parseFloat(event.offsetY/image.height).toFixed(2));
+            }
+            
+            function createSolarSystem(event,form, mapName)
+            {
+                let map = document.getElementById(mapName);
+                let name = document.getElementsByName("nombre")[0].value;
+                let date = new Date(document.getElementsByName("nacimiento")[0].value);
+                
+                if(isNaN(date) || name == "") alert("Incluye tu nombre y tu fecha de nacimiento");
+                else
+                {
+                    let diffTime = Math.abs(date - new Date()); 
+                    let diffYears = diffTime/(1000*3600*24*365);
+                    map.style.display = "block";
+
+                    let aux = document.createElement("p");
+                    aux.id = "Titulo";
+                    aux.className = "text";
+                    aux.style.top = (map.style.top + .02*map.height) + "px";
+                    aux.style.left = (map.style.left + .25*map.width) + "px";
+                    aux.innerHTML = "Edad de " + name + " en años de cada planeta:";
+                    document.getElementById("container").appendChild(aux);
+
+                    for(let [planet, values] of planetData)
+                    {
+                        let aux = document.createElement("p");
+                        aux.id = planet;
+                        aux.className = "text";
+                        aux.style.top = (map.style.top + values[1]*map.height) + "px";
+                        aux.style.left = (map.style.left + values[0]*map.width) + "px";
+                        aux.innerHTML = parseFloat(diffYears / values[2]).toFixed(2);
+                        document.getElementById("container").appendChild(aux);
+                    }
+                }
+                event.preventDefault();
+            }
+        </script>
+    </head>
+    <body>
+        <form action="#"  onsubmit="return createSolarSystem(event,this,'map');" method='POST'>
+            <p> ¿Como te llamas? <input type="text" name="nombre" /> </p>
+            <p> ¿Cuando naciste? <input type="date" name="nacimiento" /> </p>
+             <input type="submit" name="Enviar" />
+        </form>
+        <div id="container">
+            <img id="map" src="PLANETS IN ORDER.jfif" onclick="alertPosition(this, event)"/>
+        </div>
+        <script> document.getElementById('map').style.display = "none"; </script>
+    </body>
+</html>

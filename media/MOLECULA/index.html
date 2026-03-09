@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+		<style>
+		p,h1{position:absolute; font-family:roboto;}
+		h1{color:lightgreen; left:2em;}
+		p{top: 5em; left:4em; color:white;}
+		input{width:3em; margin-right:2em; border: solid 1px white; color:white;}
+		svg,input{background:#2F2F2F;}
+		body{margin:0px; overflow:hidden;}
+		</style>
+	</head>
+	
+	<body>
+		<h1>Simulador de molécula</h1>
+		<p>Escalar <input type="number" id="tam" value=90>
+		Separación de nodos <input type="number" id="dist" value=10></p> 
+	<script>
+					
+		//Escala de los nodos
+		var SCALE = (document.getElementById("tam").value/100) * (window.innerWidth + window.innerHeight)/100;
+		var REPULSION = document.getElementById("dist").value;
+		
+		//Cambiar escala de los nodos
+		d3.select("#tam").on("input", function()
+		{
+			SCALE=	(this.value/100) * (window.innerWidth + window.innerHeight)/100;
+			svg.selectAll("g").remove();
+			load();
+		});
+
+		d3.select("#dist").on("input", function()
+		{
+			REPULSION=	this.value;
+			svg.selectAll("g").remove();
+			load();
+		});
+		
+		//Elemento SVG
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", window.innerWidth)
+					.attr("height", window.innerHeight);
+					
+		window.addEventListener('resize', limiter(function()
+		{
+			var target = document.getElementsByTagName("svg")[0];
+			SCALE = (window.innerWidth + window.innerHeight)/100;
+			target.setAttribute("height", window.innerHeight);
+			target.setAttribute("width", window.innerWidth);
+			svg.selectAll("g").remove();
+			load();		
+		}));
+		
+		//Simulacion de fuerzas
+		var simulation;
+		
+		//Limitador de evento resize: para evitar la continua actualización
+		function limiter(func)
+		{
+			var timer;
+			return function(event)
+			{
+				if(timer) clearTimeout(timer);
+				timer = setTimeout(func,100,event);
+			};				
+		}
+		
+		//Cargar grafo
+		function load()
+		{
+			d3.json("nodes.json").then(function(graph){load_data(graph);})
+		}
+		
+		//Cargar datos del grafo mediante json graph
+		function load_data(graph)
+		{
+			//Arcos (creacion a partir del json)
+			var link = svg.append("g")
+				  .attr("class", "links")
+				.selectAll("line")
+				.data(graph.links)
+				.enter().append("line");
+			  
+			//Nodos (creacion de los grupos a partir del json)
+			var node = svg.append("g")
+					.attr("class", "nodes")		
+					.selectAll("g")		
+					.data(graph.nodes)
+					.enter().append("g");
+			
+			//Rellenar nodos
+			node.append("circle")
+				.attr("r",function(d)
+				{
+					let res;
+					switch(d.name)
+					{
+						case "H": res = SCALE; break;
+						case "N": res = SCALE*Math.log(7); break;
+						case "O": res = SCALE*Math.log(8); break;
+						case "C": res = SCALE*Math.log(6); break;
+						default: break;
+					}
+					return res;
+				})
+				.attr("fill",function(d)
+				{
+					let res;
+					switch(d.name)
+					{
+						case "H": res = d3.schemeCategory10[0]; break;
+						case "N": res = d3.schemeCategory10[4]; break;
+						case "O": res = d3.schemeCategory10[3]; break;
+						case "C": res = d3.schemeCategory10[8]; break;
+						default: break;
+					}
+					return res;
+				});
+
+			node.append("title")
+				.text(function(d) { return d.id; });
+				
+			node.append("text")
+				.text(function(d) { return d.name; })
+				.attr("x", function(d) { return d.id.x; })
+				.attr("y", function(d) { return d.id.y; })
+				.style("font-size", SCALE*1.25 + "px") 
+				.style("position", "relative")
+				.style("transform","translate(" + (-SCALE/2) + "px," + (SCALE/2) + "px)")
+				.style("font-family","Roboto thin")
+				.style("fill","white");
+
+			//Generar simulacion de fuerzas
+			simulation = d3.forceSimulation()			
+				.force("charge", d3.forceManyBody().strength(-SCALE*REPULSION)) //Apply charge to nodes 
+				.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2)) //Creates a new centering force 
+				.force("link", d3.forceLink().distance(function(d)
+				{
+					let res, pesos;	
+					switch(d.source.name + d.target.name)
+					{
+						case "CC": pesos = [6,6]; break;
+						case "NN": pesos = [7,7]; break;
+						case "CN": case "NC": pesos = [6,7]; break;
+						case "CH": case "HC": pesos = [6,1];break;
+						case "CO": case "OC": pesos = [6,8];break;
+						default: break;
+					}
+					res = Math.log(pesos[0]*pesos[1])*SCALE;
+					return res;
+
+				})); 		
+			
+			//Relacionar nodos y arcos en la simulacion
+			simulation
+				.nodes(graph.nodes)
+				.on("tick", ticked);
+
+			simulation.force("link")
+				.links(graph.links);
+				
+			node.call(d3.drag() //Add events to drag nodes
+						.on("start", dragstarted)
+						.on("drag", dragged)
+						.on("end", dragended));
+			
+			//Editar links
+			link.style("stroke", function(d)
+				{
+					let res;						
+					switch(d.source.name + d.target.name)
+					{
+						case "CC": res= "rgb(255,255,0)";break;
+						case "NN": res= "rgb(0,255,0)"; break;
+						case "CN": case "NC": 
+							if(d.nlinks == 1) res= "rgb(255,125,125)"
+							else res = "rgb(255,125,0)";
+							break;
+						case "CH": case "HC": res= "rgb(0,0,255)";break;
+						case "CO": case "OC": 
+							if(d.nlinks == 1) res= "rgb(255,125,0)"
+							else res = "rgb(0,255,0)";
+							break;
+						default: break;
+					}
+					return res;					
+				})
+				.attr("stroke-dasharray",function(d)
+				{
+					let res;				
+					switch(d.source.name + d.target.name)
+					{
+						case "CH": case "HC": res="10,10";break;
+						default: res = "0,0"; break;
+					}
+					return res;					
+				})
+				.attr("stroke-width",function(d)
+				{
+					return d.nlinks;					
+				});;
+				
+			//Ajustar la posicion de los nodos y arcos en cada instante
+			function ticked() 
+			{
+				link
+					.attr("x1", function(d) { return d.source.x; })
+					.attr("y1", function(d) { return d.source.y; })
+					.attr("x2", function(d) { return d.target.x; })
+					.attr("y2", function(d) { return d.target.y; });
+
+				node.attr("transform", function (d) {
+					return "translate(" + d.x + "," + d.y + ")";
+				});
+			}
+		}
+		
+		//Funciones de drag
+		function dragstarted(d) 
+		{
+		  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+		  d.fx = d.x;
+		  d.fy = d.y;
+		}
+
+		function dragged(d) 
+		{
+		  d.fx = d3.event.x;
+		  d.fy = d3.event.y;
+		}
+
+		function dragended(d) 
+		{
+		  if (!d3.event.active) simulation.alphaTarget(0);
+		  d.fx = null;
+		  d.fy = null;
+		}
+		
+		//Cargar al principio
+		load();
+
+	</script>
+	</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>KHAIDO</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="JS.js"></script>   
+        <link rel="stylesheet" href="CSS.css">
+    </head>
+    <body>
+        <header onclick="Cargar('inicio')"></header>
+        <nav></nav>
+        <aside></aside>
+        
+        <script>
+            d3.select("head").selectAll("link").data(styles).enter().append("link")
+                .attr("rel","stylesheet").attr("href",function(d){return d;});
+            
+            for(menu in buttons)
+            {
+                d3.select(menu).selectAll("button").data(buttons[menu].buttons).enter().append("button")
+                    .attr("class",buttons[menu].class).attr("id",function(d){return d[1];})
+                    .text(function(d){return d[2];})
+                    .attr("onclick",function(d){ return d[0];});
+            }
+        </script>      
+        
+        <main id="contenido">
+        </main>
+        
+        <section id="reproductor" onclick="
+            this.style.display='none';
+            document.getElementById('media_container').src='';
+            document.body.style.overflow ='auto';">
+            <iframe id="media_container" src="" allowfullscreen></iframe>
+        </section>
+        
+        <section id="photoviewer">
+            <div id="photoviewer_background" 
+                 onclick="
+                     document.getElementById('photoviewer').style.display='none';
+                     document.getElementById('photo_container').src='';
+                     document.body.style.overflow ='auto';
+                                      "></div>
+            <img id="photo_container" src="" alt="No está disponible"/>
+            <div><button id="prev_image">Prev</button></div>
+            <div><button id="next_image">Next</button></div>
+        </section>        
+        
+        <footer> 
+            <p id="left"> Khaido Productions TM </p> 
+            <div id="socialnets">
+                <a style="text-decoration:none;" href="https://www.youtube.com/channel/UCT9oXTKofTXK8eBNU8Z2Uog"> <button class="fa fa-youtube">  </button>  </a>
+                <a style="text-decoration:none;" href="https://www.instagram.com/khaido_ig/?hl=es"> <button class="fa fa-instagram">   </button> </a>  
+                <a style="text-decoration:none;" href="https://www.uoc.edu/portal/es/news/actualitat/2020/165-twitter-red-odio.html"> <button class="fa fa-twitter"></button>  </a>                      
+            </div>
+            <p id="right"> 2021 </p> 
+        </footer>
+       
+        <script>
+			Cargar('inicio');
+			
+			window.addEventListener('load', function () 
+			{
+				var a = document.getElementsByTagName("img");
+				for (i of a) if(i.src=="https://cdn.000webhost.com/000webhost/logo/footer-powered-by-000webhost-white2.png")i.parentElement.parentElement.remove();
+			});
+		</script>
+		
+    </body>
+</html>

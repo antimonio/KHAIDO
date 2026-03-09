@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<head>
+		<title>D3 Demo: Making a scatterplot with SVG</title>
+		<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+		<style type="text/css">
+			#calendar {display:grid; grid-template-columns:auto auto auto auto auto auto; left:0px; width:75%;}
+			.day {border:solid black 1px; text-align:center;}
+			.day div {min-height:1.15em;}
+			.legend {text-align:right;}
+			.day > div:hover  {border:solid red 1px;}
+			p,input {margin:0;}
+			
+			#floatbuttons {position:fixed; text-align:right;right:0px;width:25%; height:95%; overflow:auto; white-space:nowrap;font-size:0.8em;}
+			
+			body {background-color:white;}
+		</style>
+		<script>
+			const listDate = ["legend"], listHours = [
+												["T09:00","T11:30"],["T09:30","T11:30"],["T11:30","T14:00"],["T12:00","T14:00"],
+												["T14:30","T17:00"],["T15:00","T17:30"],["T17:30","T20:00"]
+											]; 
+											
+			const listCreated = [];
+			const startDate ='2021-09-13';
+			const endDate = '2022-05-20';
+			const dateMove = new Date(startDate);
+			
+			
+			let strDate = startDate;
+
+			while (strDate < endDate) 
+			{
+				strDate = dateMove.toISOString().slice(0, 10);
+				if(dateMove.getDay() != 6 && dateMove.getDay() != 0) listDate.push(strDate)
+				else if(dateMove.getDay() == 0) listDate.push(listDate[0]);
+				dateMove.setDate(dateMove.getDate() + 1);
+			};
+		</script>
+		
+	</head>
+	<body>
+		<div id="floatbuttons"></div>
+		<script id="hide00" type="text/javascript" src="createall.js">
+		</script>
+		<script id="hide02">
+                    document.getElementById("hide00").remove();
+                    document.getElementById("hide02").remove();
+                </script>
+	</body>
+</html>
