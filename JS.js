@@ -19,6 +19,7 @@ var buttons =
 
 
 let mediaData = [];
+let tagActual = null;
 
 fetch("media/media.csv")
     .then(response => response.text())
@@ -56,14 +57,13 @@ function renderizarSeccion(seccion, tag){
 
     section.innerHTML = '';
 
-    let filtrados = mediaData.filter(item => item.TIPO === seccion);
+    let filtrados = tag ? mediaData.filter(item => {
+        let tags = item.TAGS.split(',').map(t => t.trim());
+        return tags.includes(tag);
+    }) : mediaData.filter(item => item.TIPO === seccion);
 
     if(tag){
         section.innerHTML = '<br><h3>' + tag + '</h3>';
-        filtrados = filtrados.filter(item => {
-            let tags = item.TAGS.split(',').map(t => t.trim());
-            return tags.includes(tag);
-        });
     }
 
     filtrados.forEach(item => {
@@ -94,7 +94,7 @@ function renderizarSeccion(seccion, tag){
             link.textContent = '#' + t;
             link.onclick = function(e){
                 e.preventDefault();
-                swapContent(seccion, t);
+                mostrarPorTag(t);
                 return false;
             };
             card.appendChild(link);
@@ -108,15 +108,19 @@ function Cargar(seccion_id)
 {
     try {document.getElementsByClassName('visible')[0].className = 'hidden';}catch(error){};
 
+    tagActual = null;
     var abrir = document.getElementById(seccion_id);
     if(abrir !== null) abrir.className = 'visible';
 }
 
-function swapContent(seccion_id, tag)
+function mostrarPorTag(tag)
 {
-    var element = document.getElementById(seccion_id);
-    if(element) element.className = 'visible';
-    renderizarSeccion(seccion_id, tag);
+    tagActual = tag;
+
+    renderizarSeccion('video', tag);
+    renderizarSeccion('gyp', tag);
+    renderizarSeccion('audio', tag);
+    renderizarSeccion('colabo', tag);
 }
 
 function cargarmultimedia(enlace)
