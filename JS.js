@@ -109,6 +109,12 @@ function Cargar(seccion_id)
     try {document.getElementsByClassName('visible')[0].className = 'hidden';}catch(error){};
 
     tagActual = null;
+
+    renderizarSeccion('video', null);
+    renderizarSeccion('gyp', null);
+    renderizarSeccion('audio', null);
+    renderizarSeccion('colabo', null);
+
     var abrir = document.getElementById(seccion_id);
     if(abrir !== null) abrir.className = 'visible';
 }
